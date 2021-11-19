@@ -20,7 +20,6 @@ class keyvalue(argparse.Action):
               key, value = value.split('=') 
               getattr(namespace, self.dest)[key] = value 
 
-
 parser = ArgumentParser(usage='fk {options} [TARGET]')
 parser.add_argument('target', help='Specify the target to scan.')
 parser.add_argument('-w', '--wordlist', dest='wordlist', required=True, metavar="",
@@ -51,7 +50,6 @@ def render():
     
     Developed by                   @eumn1ck @thisfarias
     """)
-
 
 urls = []
 
@@ -110,8 +108,6 @@ def start():
         for i in urls:
             send(i)
 
-
-           
 render()
 create_list()
 start()
