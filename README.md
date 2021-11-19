@@ -1,2 +1,2 @@
-# FuzzingKiller
+# FuzzerKiller
 é o fuzzer familia 
