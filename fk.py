@@ -61,17 +61,20 @@ else:
 
 code = 404
 
-def send(url, rheader=headers, status_code=code): 
-    r = requests.get(url, headers=rheader)
-    response = r.status_code
-    if response != status_code:
-        if args.etext:
-            content = r.text
-            if args.etext not in content:
+def send(url, rheader=headers, status_code=code):
+    try:
+        r = requests.get(url, headers=rheader)
+        response = r.status_code
+        if response != status_code:
+            if args.etext:
+                content = r.text
+                if args.etext not in content:
+                    print(f"[{response}]    {url}")
+            else:
                 print(f"[{response}]    {url}")
         else:
-            print(f"[{response}]    {url}")
-    else:
+            pass
+    except:
         pass
 
 def create_list():
@@ -91,7 +94,7 @@ def create_list():
         
 def start():
     if args.threads:
-        print('Scan started at ' + time.strftime('%x %X %z'))
+        print('Scan started at ' + time.strftime('%x %X %z') + '\n')
         count = 1
         var_threads = args.threads + 1   
         for i in urls:
@@ -103,7 +106,7 @@ def start():
                     break
                 if len(threading.enumerate()) < var_threads:
                     count -= var_threads - len(threading.enumerate())
-        print('Scan finished at '  + time.strftime('%x %X %z')) 
+        print('\nScan finished at '  + time.strftime('%x %X %z')) 
     else:
         for i in urls:
             send(i)
