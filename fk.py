@@ -5,12 +5,13 @@ try:
 except:
     print("Dependy requests not found!")
 
-import sys
-import time
-from threading import Thread
+from concurrent.futures.thread import ThreadPoolExecutor
 from argparse import ArgumentParser
-import argparse
+from threading import Thread
 import threading
+import argparse
+import time
+import sys
 
 class keyvalue(argparse.Action): 
     def __call__( self , parser, namespace, 
@@ -94,22 +95,16 @@ def create_list():
         
 def start():
     if args.threads:
-        print('Scan started at ' + time.strftime('%x %X %z') + '\n')
-        count = 1
-        var_threads = args.threads + 1   
-        for i in urls:
-            while True:     
-                if count < var_threads:          
-                    count += 1 
-                    a = Thread(target=send, args=(i,))
-                    a.start()                     
-                    break
-                if len(threading.enumerate()) < var_threads:
-                    count -= var_threads - len(threading.enumerate())
-        print('\nScan finished at '  + time.strftime('%x %X %z')) 
+        if args.threads == 1:
+            print("[+] Running in single thread mode")
+    
+        pool = ThreadPoolExecutor(max_workers=args.threads)
+    
     else:
-        for i in urls:
-            send(i)
+        pool = ThreadPoolExecutor(max_workers=10)
+
+    for i in urls:
+        pool.submit(send, i)
 
 render()
 create_list()
