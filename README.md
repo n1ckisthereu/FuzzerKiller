@@ -18,6 +18,7 @@ Insert FUZZ in target for testing your parameter list
   -e , --error-text     If the text passed in this argument is not on the page and the status code is != 404 the
                         script will return success
   -H , --headers        Pass headers format "key=value" "key1=value1"
+  -v , --verbose        -v to Verbose mode
 }
 ```
 
