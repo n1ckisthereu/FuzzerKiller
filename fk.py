@@ -32,7 +32,10 @@ parser.add_argument('-e', '--error-text', dest='etext', metavar="",
         help='If the text passed in this argument is not on the page and the status code is != 404 the script will return success')
 
 parser.add_argument('-H', '--headers', nargs='*', action=keyvalue, dest='pheaders', metavar="",
-        help='Pass headers format "key=value" "key1=value1"') 
+        help='Pass headers format "key=value" "key1=value1"')
+
+parser.add_argument('-v', '--verbose', action='store_true', help='-v to Verbose mode')
+
 args = parser.parse_args()
 
 if "FUZZ" not in args.target:
@@ -73,8 +76,14 @@ def send(url, rheader=headers, status_code=code):
                     print(f"[{response}]    {url}")
             else:
                 print(f"[{response}]    {url}")
+        
+        elif args.verbose:
+            print(f"[{response}]    {url}")
+        
         else:
             pass
+
+
     except:
         pass
 
