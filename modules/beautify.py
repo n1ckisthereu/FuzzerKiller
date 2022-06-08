@@ -8,3 +8,15 @@ ______                      _   ___ _ _
 \_|  \__,_/___/___\___|_|  \_| \_/_|_|_|\___|_|   
                                                   
 """
+
+def formatError(
+    status_code,
+    message
+):
+    return {
+        "status": status_code,
+        "message": message
+    }
+
+def formatPrint():
+    pass

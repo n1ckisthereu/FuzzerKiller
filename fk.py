@@ -10,6 +10,8 @@ from argparse import ArgumentParser
 from modules.beautify import render
 from modules.formatters import keyvalue
 from sys import exit as ext
+from modules.functions import *
+from status.codes import *
 
 parser = ArgumentParser(usage='fk {options} [TARGET]')
 parser.add_argument('target', help='Specify the target to scan.')
@@ -33,6 +35,7 @@ if "FUZZ" not in args.target:
     ext(1)
 
 urls = []
+code = 404
 
 if args.pheaders:
     headers = args.pheaders
@@ -40,7 +43,6 @@ if args.pheaders:
 else:
     headers = {'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36'}
 
-code = 404
 
 def send(url, rheader=headers, status_code=code):
     try:
@@ -59,25 +61,19 @@ def send(url, rheader=headers, status_code=code):
         
         else:
             pass
-
-
     except:
         pass
 
-def create_list():
+def create_list(args):
     global urls
-    
-    try:
-        file = open(args.wordlist)
-        read_file = file.read().splitlines()
-        for i in read_file:
-            new_url = args.target.replace('FUZZ', i)
-            urls.append(new_url)
-            
-        file.close()   
-        
-    except Exception as error:
-        print(error)
+
+    teste = functions()
+    result = teste.createList(args)
+
+    if result['status'] == status_error:
+        print(result['message'])
+    elif result['status'] == status_ok:
+        urls = result['message']    
         
 def start():
     if args.threads:
@@ -93,6 +89,10 @@ def start():
         pool.submit(send, i)
 
 if __name__ == '__main__':
+    if "FUZZ" not in args.target:
+        print('Please add \"FUZZ\" in target')
+        ext(1)
+
     print(render())
-    create_list()
+    create_list(args)
     start()
