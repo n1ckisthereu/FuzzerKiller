@@ -7,19 +7,9 @@ except:
 
 from concurrent.futures.thread import ThreadPoolExecutor
 from argparse import ArgumentParser
-from threading import Thread
-import threading
-import argparse
-import time
-import sys
-
-class keyvalue(argparse.Action): 
-    def __call__( self , parser, namespace, 
-                 values, option_string = None): 
-        setattr(namespace, self.dest, dict()) 
-        for value in values: 
-              key, value = value.split('=') 
-              getattr(namespace, self.dest)[key] = value 
+from modules.beautify import render
+from modules.formatters import keyvalue
+from sys import exit as ext
 
 parser = ArgumentParser(usage='fk {options} [TARGET]')
 parser.add_argument('target', help='Specify the target to scan.')
@@ -40,20 +30,7 @@ args = parser.parse_args()
 
 if "FUZZ" not in args.target:
     print('Please add \"FUZZ\" in target')
-    sys.exit(1)
-
-def render():
-    print("""                                              
-    ______                      _   ___ _ _           
-    |  ___|                    | | / (_) | |          
-    | |_ _   _ ___________ _ __| |/ / _| | | ___ _ __ 
-    |  _| | | |_  /_  / _ \ '__|    \| | | |/ _ \ '__|
-    | | | |_| |/ / / /  __/ |  | |\  \ | | |  __/ |   
-    \_|  \__,_/___/___\___|_|  \_| \_/_|_|_|\___|_|   
-                                                  
-    
-    Developed by                   @eumn1ck @thisfarias
-    """)
+    ext(1)
 
 urls = []
 
@@ -115,6 +92,7 @@ def start():
     for i in urls:
         pool.submit(send, i)
 
-render()
-create_list()
-start()
+if __name__ == '__main__':
+    print(render())
+    create_list()
+    start()
