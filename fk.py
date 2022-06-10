@@ -1,5 +1,4 @@
 #coding: utf-8
-
 try:
     import requests
 except:
@@ -11,7 +10,7 @@ from modules.beautify import render
 from modules.formatters import keyvalue
 from sys import exit as ext
 from modules.functions import *
-from status.codes import *
+from variables.codes import *
 
 parser = ArgumentParser(usage='fk {options} [TARGET]')
 parser.add_argument('target', help='Specify the target to scan.')
@@ -34,14 +33,19 @@ if "FUZZ" not in args.target:
     print('Please add \"FUZZ\" in target')
     ext(1)
 
+# Variables
+
 urls = []
 code = 404
+f = functions(args)
 
 if args.pheaders:
     headers = args.pheaders
-    print(headers)
+
 else:
-    headers = {'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36'}
+    headers = {
+        'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36'
+    }
 
 
 def send(url, rheader=headers, status_code=code):
@@ -67,8 +71,7 @@ def send(url, rheader=headers, status_code=code):
 def create_list(args):
     global urls
 
-    teste = functions()
-    result = teste.createList(args)
+    result = f.createList()
 
     if result['status'] == status_error:
         print(result['message'])

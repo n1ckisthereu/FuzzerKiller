@@ -17,6 +17,3 @@ def formatError(
         "status": status_code,
         "message": message
     }
-
-def formatPrint():
-    pass
