@@ -75,11 +75,10 @@ def start():
     for i in urls:        
         processes.append( pool.submit(f.send, i, headers, 404))
 
-    if args.fExtensions:
-        listOfExtensions = splitString(args.fExtensions[0])
-        for i in listOfExtensions:
-            for j in urls:
-                new_url = j + "." + i
+        if args.fExtensions:
+            listOfExtensions = splitString(args.fExtensions[0])
+            for j in listOfExtensions:
+                new_url = i + "." + j
                 processes.append(pool.submit(f.send, new_url, headers, 404))
 
     for future in as_completed(processes):
