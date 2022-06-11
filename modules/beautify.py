@@ -1,3 +1,6 @@
+from email import message
+
+
 def render():
     return """
 ______                      _   ___ _ _           
@@ -10,6 +13,15 @@ ______                      _   ___ _ _
 """
 
 def formatError(
+    status_code,
+    message
+):
+    return {
+        "status": status_code,
+        "message": message
+    }
+
+def returnMessage(
     status_code,
     message
 ):

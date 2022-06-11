@@ -1,9 +1,6 @@
 #coding: utf-8
-try:
-    import requests
-except:
-    print("Dependy requests not found!")
 
+from concurrent.futures import as_completed, process
 from concurrent.futures.thread import ThreadPoolExecutor
 from argparse import ArgumentParser
 from modules.beautify import render
@@ -36,7 +33,7 @@ if "FUZZ" not in args.target:
 # Variables
 
 urls = []
-code = 404
+
 f = functions(args)
 
 if args.pheaders:
@@ -47,28 +44,7 @@ else:
         'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36'
     }
 
-
-def send(url, rheader=headers, status_code=code):
-    try:
-        r = requests.get(url, headers=rheader)
-        response = r.status_code
-        if response != status_code:
-            if args.etext:
-                content = r.text
-                if args.etext not in content:
-                    print(f"[{response}]    {url}")
-            else:
-                print(f"[{response}]    {url}")
-        
-        elif args.verbose:
-            print(f"[{response}]    {url}")
-        
-        else:
-            pass
-    except:
-        pass
-
-def create_list(args):
+def create_list():
     global urls
 
     result = f.createList()
@@ -79,23 +55,36 @@ def create_list(args):
         urls = result['message']    
         
 def start():
+    processes = []
+
     if args.threads:
         if args.threads == 1:
             print("[+] Running in single thread mode")
     
         pool = ThreadPoolExecutor(max_workers=args.threads)
-    
+
     else:
         pool = ThreadPoolExecutor(max_workers=10)
 
     for i in urls:
-        pool.submit(send, i)
+        processes.append( pool.submit(f.send, i, headers, 404))
 
+    for future in as_completed(processes):
+        try:
+            if future.result()['status'] == request_successful:
+                print(future.result()['message'])
+
+            if future.result()['status'] == unkdownError:
+                print(future.result()['message'])
+
+        except Exception as error:
+            print(error)
+        
 if __name__ == '__main__':
     if "FUZZ" not in args.target:
         print('Please add \"FUZZ\" in target')
         ext(1)
 
     print(render())
-    create_list(args)
+    create_list()
     start()

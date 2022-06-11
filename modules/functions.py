@@ -1,12 +1,11 @@
 from variables.codes import *
-from modules.beautify import formatError
+from modules.beautify import formatError, returnMessage
 
 try:
     from requests import get
 except:
     print("Dependy requests not found!")
 
-code = 404
 
 class functions():
     def __init__(self,args):
@@ -28,22 +27,24 @@ class functions():
         except Exception as error:
             return formatError(status_error, error)
 
-    # def send(self,url, rheader=headers, status_code=code):
-    #     try:
-    #         r = get(url, headers=rheader)
-    #         response = r.status_code
-    #         if response != status_code:
-    #             if args.etext:
-    #                 content = r.text
-    #                 if args.etext not in content:
-    #                     print(f"[{response}]    {url}")
-    #             else:
-    #                 print(f"[{response}]    {url}")
-          
-    #         elif args.verbose:
-    #             print(f"[{response}]    {url}")
-          
-    #         else:
-    #             pass
-    #     except:
-    #         pass
+    def send(self,url, header, status_code):
+        try:
+            r = get(url, headers=header)
+            response = r.status_code
+            if response != status_code:
+                if self.args.etext:
+                    content = r.text
+                    if self.args.etext not in content:
+                        return returnMessage(request_successful, f"[{response}]    {url}")
+                        
+                else:
+                    return returnMessage(request_successful, f"[{response}]    {url}")
+        
+            elif self.args.verbose:
+                return returnMessage(request_successful, f"[{response}]    {url}")
+            
+            else:
+                return returnMessage(ignore, None)
+        except:
+                return returnMessage(unkdownError, "[!] Unkdown error")
+                
