@@ -1,5 +1,6 @@
 from variables.codes import *
 from modules.beautify import formatError, returnMessage
+from modules.formatters import splitString
 
 try:
     from requests import get
@@ -20,6 +21,19 @@ class functions():
             for i in read_file:
                 new_url = self.args.target.replace('FUZZ', i)
                 urls.append(new_url)
+
+            if self.args.fExtensions:
+                if(len(self.args.fExtensions) < 1 or len(self.args.fExtensions) > 1):
+                    return formatError(status_error, "Please pass only one file extension")
+                else:
+                    listOfExntesion = splitString(self.args.fExtensions[0])
+                    
+                    for i in listOfExntesion:
+                        for j in urls:
+                            new_url = j + '.' + i
+                            urls.append(new_url)
+
+
             file.close()   
             
             return formatError(status_ok, urls)
@@ -36,11 +50,10 @@ class functions():
                     content = r.text
                     if self.args.etext not in content:
                         return returnMessage(request_successful, f"[{response}]    {url}")
-                        
                 else:
                     return returnMessage(request_successful, f"[{response}]    {url}")
         
-            elif self.args.verbose:
+            if self.args.verbose:
                 return returnMessage(request_successful, f"[{response}]    {url}")
             
             else:

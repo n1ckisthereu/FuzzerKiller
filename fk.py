@@ -1,6 +1,6 @@
 #coding: utf-8
 
-from concurrent.futures import as_completed, process
+from concurrent.futures import as_completed
 from concurrent.futures.thread import ThreadPoolExecutor
 from argparse import ArgumentParser
 from modules.beautify import render
@@ -21,6 +21,9 @@ parser.add_argument('-e', '--error-text', dest='etext', metavar="",
 
 parser.add_argument('-H', '--headers', nargs='*', action=keyvalue, dest='pheaders', metavar="",
         help='Pass headers format "key=value" "key1=value1"')
+
+parser.add_argument('-ext', '--file-extensions', nargs='*', dest='fExtensions', metavar="",
+        help='Pass comma separated file extensions, for example: "php,html,asp,aspx"')
 
 parser.add_argument('-v', '--verbose', action='store_true', help='-v to Verbose mode')
 
@@ -51,6 +54,7 @@ def create_list():
 
     if result['status'] == status_error:
         print(result['message'])
+        ext(1)
     elif result['status'] == status_ok:
         urls = result['message']    
         

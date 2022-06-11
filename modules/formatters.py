@@ -7,3 +7,7 @@ class keyvalue(argparse.Action):
         for value in values: 
               key, value = value.split('=') 
               getattr(namespace, self.dest)[key] = value 
+
+
+def splitString(string):
+    return string.split(',')
