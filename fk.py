@@ -1,13 +1,14 @@
 #coding: utf-8
 
-from concurrent.futures import as_completed
 from concurrent.futures.thread import ThreadPoolExecutor
+from concurrent.futures import as_completed
+from modules.formatters import splitString
+from modules.formatters import keyvalue
 from argparse import ArgumentParser
 from modules.beautify import render
-from modules.formatters import keyvalue
-from sys import exit as ext
 from modules.functions import *
 from variables.codes import *
+from sys import exit as ext
 
 parser = ArgumentParser(usage='fk {options} [TARGET]')
 parser.add_argument('target', help='Specify the target to scan.')
@@ -58,6 +59,7 @@ def create_list():
     elif result['status'] == status_ok:
         urls = result['message']    
         
+
 def start():
     processes = []
 
@@ -70,8 +72,15 @@ def start():
     else:
         pool = ThreadPoolExecutor(max_workers=10)
 
-    for i in urls:
+    for i in urls:        
         processes.append( pool.submit(f.send, i, headers, 404))
+
+    if args.fExtensions:
+        listOfExtensions = splitString(args.fExtensions[0])
+        for i in listOfExtensions:
+            for j in urls:
+                new_url = j + "." + i
+                processes.append(pool.submit(f.send, new_url, headers, 404))
 
     for future in as_completed(processes):
         try:
@@ -83,6 +92,9 @@ def start():
 
         except Exception as error:
             print(error)
+
+    
+
         
 if __name__ == '__main__':
     if "FUZZ" not in args.target:
