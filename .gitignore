@@ -1,0 +1,4 @@
+*.txt
+venv/*
+*cpython*
+__pycache__
