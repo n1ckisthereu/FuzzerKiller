@@ -1,14 +1,24 @@
 #coding: utf-8
 
-from concurrent.futures.thread import ThreadPoolExecutor
-from concurrent.futures import as_completed
-from modules.formatters import splitString
-from modules.formatters import keyvalue
+try:
+    import requests
+except:
+    print("Dependy requests not found!")
+
+import sys
+import time
+from threading import Thread
 from argparse import ArgumentParser
-from modules.beautify import render
-from modules.functions import *
-from variables.codes import *
-from sys import exit as ext
+import argparse
+import threading
+
+class keyvalue(argparse.Action): 
+    def __call__( self , parser, namespace, 
+                 values, option_string = None): 
+        setattr(namespace, self.dest, dict()) 
+        for value in values: 
+              key, value = value.split('=') 
+              getattr(namespace, self.dest)[key] = value 
 
 parser = ArgumentParser(usage='fk {options} [TARGET]')
 parser.add_argument('target', help='Specify the target to scan.')
@@ -21,80 +31,86 @@ parser.add_argument('-e', '--error-text', dest='etext', metavar="",
         help='If the text passed in this argument is not on the page and the status code is != 404 the script will return success')
 
 parser.add_argument('-H', '--headers', nargs='*', action=keyvalue, dest='pheaders', metavar="",
-        help='Pass headers format "key=value" "key1=value1"')
-
-parser.add_argument('-ext', '--file-extensions', nargs='*', dest='fExtensions', metavar="",
-        help='Pass comma separated file extensions, for example: "php,html,asp,aspx"')
-
-parser.add_argument('-v', '--verbose', action='store_true', help='-v to Verbose mode')
-
+        help='Pass headers format "key=value" "key1=value1"') 
 args = parser.parse_args()
 
 if "FUZZ" not in args.target:
     print('Please add \"FUZZ\" in target')
-    ext(1)
+    sys.exit(1)
 
-# Variables
+def render():
+    print("""                                              
+    ______                      _   ___ _ _           
+    |  ___|                    | | / (_) | |          
+    | |_ _   _ ___________ _ __| |/ / _| | | ___ _ __ 
+    |  _| | | |_  /_  / _ \ '__|    \| | | |/ _ \ '__|
+    | | | |_| |/ / / /  __/ |  | |\  \ | | |  __/ |   
+    \_|  \__,_/___/___\___|_|  \_| \_/_|_|_|\___|_|   
+                                                  
+    
+    Developed by                   @eumn1ck @thisfarias
+    """)
+
 urls = []
-
-f = functions(args)
 
 if args.pheaders:
     headers = args.pheaders
+    print(headers)
 else:
-    headers = {
-        'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36'
-    }
+    headers = {'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36'}
+
+code = 404
+
+def send(url, rheader=headers, status_code=code):
+    try:
+        r = requests.get(url, headers=rheader)
+        response = r.status_code
+        if response != status_code:
+            if args.etext:
+                content = r.text
+                if args.etext not in content:
+                    print(f"[{response}]    {url}")
+            else:
+                print(f"[{response}]    {url}")
+        else:
+            pass
+    except:
+        pass
 
 def create_list():
     global urls
-
-    result = f.createList()
-
-    if result['status'] == status_error:
-        print(result['message'])
-        ext(1)
-    elif result['status'] == status_ok:
-        urls = result['message']    
-        
-
-def start():
-    processes = []
-
-    if args.threads:
-        if args.threads == 1:
-            print("[+] Running in single thread mode")
     
-        pool = ThreadPoolExecutor(max_workers=args.threads)
-
+    try:
+        file = open(args.wordlist)
+        read_file = file.read().splitlines()
+        for i in read_file:
+            new_url = args.target.replace('FUZZ', i)
+            urls.append(new_url)
+            
+        file.close()   
+        
+    except Exception as error:
+        print(error)
+        
+def start():
+    if args.threads:
+        print('Scan started at ' + time.strftime('%x %X %z') + '\n')
+        count = 1
+        var_threads = args.threads + 1   
+        for i in urls:
+            while True:     
+                if count < var_threads:          
+                    count += 1 
+                    a = Thread(target=send, args=(i,))
+                    a.start()                     
+                    break
+                if len(threading.enumerate()) < var_threads:
+                    count -= var_threads - len(threading.enumerate())
+        print('\nScan finished at '  + time.strftime('%x %X %z')) 
     else:
-        pool = ThreadPoolExecutor(max_workers=10)
+        for i in urls:
+            send(i)
 
-    for i in urls:        
-        processes.append( pool.submit(f.send, i, headers, 404))
-
-        if args.fExtensions:
-            listOfExtensions = splitString(args.fExtensions[0])
-            for j in listOfExtensions:
-                new_url = i + "." + j
-                processes.append(pool.submit(f.send, new_url, headers, 404))
-
-    for future in as_completed(processes):
-        try:
-            if future.result()['status'] == request_successful:
-                print(future.result()['message'])
-
-            if future.result()['status'] == unkdownError:
-                print(future.result()['message'])
-
-        except Exception as error:
-            print(error)
-
-if __name__ == '__main__':
-    if "FUZZ" not in args.target:
-        print('Please add \"FUZZ\" in target')
-        ext(1)
-
-    print(render())
-    create_list()
-    start()
+render()
+create_list()
+start()
